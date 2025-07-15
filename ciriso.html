@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculateur de Salaire Cumulatif</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    input, button {
+      margin: 10px 0;
+    }
+    ul {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>?? Calculateur de Salaire Cumulatif</h2>
+
+  <label for="units">Unités :</label><br>
+  <input type="number" id="units" placeholder="ex: 10"><br>
+
+  <label for="tarif">Tarif par unité (Ariary) :</label><br>
+  <input type="number" id="tarif" placeholder="ex: 240"><br>
+
+  <button onclick="ajouterSalaire()">Ajouter</button>
+  <p id="resultat">Salaire total : 0 Ariary</p>
+
+  <ul id="historique"></ul>
+
+  <script>
+    let totalSalaire = 0;
+
+    // Charger les données précédentes si elles existent
+    window.onload = function() {
+      const stockage = localStorage.getItem("historiqueSalaire");
+      if (stockage) {
+        const liste = JSON.parse(stockage);
+        liste.forEach(item => {
+          totalSalaire += item.salaire;
+          afficherItem(item);
+        });
+        document.getElementById("resultat").innerText = "Salaire total : " + totalSalaire + " Ariary";
+      }
+    }
+
+    function ajouterSalaire() {
+      let units = parseFloat(document.getElementById("units").value);
+      let tarif = parseFloat(document.getElementById("tarif").value);
+
+      if (isNaN(units) || isNaN(tarif)) {
+        alert("Entrez des valeurs valides !");
+        return;
+      }
+
+      let salaire = units * tarif;
+      totalSalaire += salaire;
+
+      document.getElementById("resultat").innerText = "Salaire total : " + totalSalaire + " Ariary";
+
+      let item = {
+        units: units,
+        tarif: tarif,
+        salaire: salaire
+      };
+
+      afficherItem(item);
+
+      // Sauvegarder dans localStorage
+      const stockage = localStorage.getItem("historiqueSalaire");
+      let liste = stockage ? JSON.parse(stockage) : [];
+      liste.push(item);
+      localStorage.setItem("historiqueSalaire", JSON.stringify(liste));
+
+      // Réinitialiser les inputs
+      document.getElementById("units").value = "";
+      document.getElementById("tarif").value = "";
+    }
+
+    function afficherItem(item) {
+      let li = document.createElement("li");
+      li.textContent = item.units + " unités à " + item.tarif + " Ar = " + item.salaire + " Ar";
+      document.getElementById("historique").appendChild(li);
+    }
+  </script>
+</body>
+</html>
