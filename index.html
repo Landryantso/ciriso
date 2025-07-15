@@ -96,10 +96,14 @@ const firebaseConfig = {
     }
 
     function afficherItem(item) {
+      document.getElementById("dernier").innerText = "Dernier calcul : " + salaire + " Ariary";
+
       let li = document.createElement("li");
       li.textContent = item.units + " unités à " + item.tarif + " Ar = " + item.salaire + " Ar";
       document.getElementById("historique").appendChild(li);
     }
   </script>
+  <p id="dernier">Dernier calcul : 0 Ariary</p>
+
 </body>
 </html>
