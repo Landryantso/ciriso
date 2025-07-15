@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Calculateur de Salaire Cumulatif</title>
+  <title>Calculateur de Salaire avec Firebase</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,9 +15,28 @@
       padding-left: 20px;
     }
   </style>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"></script>
+  <script>
+    // Configuration Firebase (exemple)
+const firebaseConfig = {
+  apiKey: "AIzaSyCaYx8Co6yCf7SRRkYnfjGgYWzUXtBbHz4",
+  authDomain: "ciriso.firebaseapp.com",
+  projectId: "ciriso",
+  storageBucket: "ciriso.firebasestorage.app",
+  messagingSenderId: "644892624111",
+  appId: "1:644892624111:web:1f0c9be3a529f847d5471a",
+  measurementId: "G-SE8MZ4Z4JE"
+};
+
+    // Initialiser Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+  </script>
 </head>
 <body>
-  <h2>?? Calculateur de Salaire Cumulatif</h2>
+  <h2>🧮 Calculateur de Salaire avec Sauvegarde Firebase</h2>
 
   <label for="units">Unités :</label><br>
   <input type="number" id="units" placeholder="ex: 10"><br>
@@ -33,17 +52,16 @@
   <script>
     let totalSalaire = 0;
 
-    // Charger les données précédentes si elles existent
+    // Charger les données depuis Firebase
     window.onload = function() {
-      const stockage = localStorage.getItem("historiqueSalaire");
-      if (stockage) {
-        const liste = JSON.parse(stockage);
-        liste.forEach(item => {
+      db.ref("salaires").once("value", snapshot => {
+        snapshot.forEach(child => {
+          const item = child.val();
           totalSalaire += item.salaire;
           afficherItem(item);
         });
         document.getElementById("resultat").innerText = "Salaire total : " + totalSalaire + " Ariary";
-      }
+      });
     }
 
     function ajouterSalaire() {
@@ -63,16 +81,14 @@
       let item = {
         units: units,
         tarif: tarif,
-        salaire: salaire
+        salaire: salaire,
+        date: new Date().toISOString()
       };
 
       afficherItem(item);
 
-      // Sauvegarder dans localStorage
-      const stockage = localStorage.getItem("historiqueSalaire");
-      let liste = stockage ? JSON.parse(stockage) : [];
-      liste.push(item);
-      localStorage.setItem("historiqueSalaire", JSON.stringify(liste));
+      // Sauvegarder dans Firebase
+      db.ref("salaires").push(item);
 
       // Réinitialiser les inputs
       document.getElementById("units").value = "";
